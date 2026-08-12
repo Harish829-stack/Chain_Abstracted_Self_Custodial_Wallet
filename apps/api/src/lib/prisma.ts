@@ -1,12 +1,13 @@
 import { PrismaClient } from "@prisma/client";
-import { PgAdapter } from "@prisma/adapter-pg";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import * as dotenv from "dotenv";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-// Load root .env (apps/api is two levels deep from root)
+// Load root .env (src/lib/ is three levels deep from root)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
+dotenv.config({ path: path.resolve(__dirname, "../../../../.env") });
 
 function createPrismaClient() {
   const connectionString = process.env.DATABASE_URL;
@@ -15,7 +16,11 @@ function createPrismaClient() {
       "DATABASE_URL is not set. Add it to your .env file at the project root."
     );
   }
-  const adapter = new PgAdapter({ connectionString });
+  const pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+  });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({
     adapter,
     log:

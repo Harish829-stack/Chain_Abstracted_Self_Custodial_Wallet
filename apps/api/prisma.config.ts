@@ -1,5 +1,5 @@
 import { defineConfig } from "prisma/config";
-import { PgAdapter } from "@prisma/adapter-pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import * as dotenv from "dotenv";
 import path from "node:path";
@@ -33,7 +33,7 @@ export default defineConfig({
         connectionString: urlWithSsl,
         ssl: { rejectUnauthorized: false },
       });
-      return new PgAdapter(pool);
+      return new PrismaPg(pool);
     },
   },
 });

@@ -13,9 +13,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, "../../../.env") });
 
 import { PrismaClient, VM } from "@prisma/client";
-import { PgAdapter } from "@prisma/adapter-pg";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 
-const adapter = new PgAdapter({ connectionString: process.env.DATABASE_URL! });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL!,
+  ssl: { rejectUnauthorized: false },
+});
+const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter, log: ["error"] });
 
 async function main() {
