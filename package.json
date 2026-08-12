@@ -1,0 +1,43 @@
+{
+  "name": "chain-abstracted-wallet",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chain-Abstracted Self-Custodial Wallet — Monorepo Root",
+  "type": "module",
+  "scripts": {
+    "dev:web": "pnpm --filter @caw/web dev",
+    "dev:api": "pnpm --filter @caw/api dev",
+    "build": "pnpm --filter @caw/wallet-core build && pnpm --filter @caw/web build && pnpm --filter @caw/api build",
+    "lint": "eslint . --ext .ts,.tsx",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm --filter chain-abstracted-wallet-hardhat test",
+    "hardhat:compile": "hardhat compile",
+    "hardhat:test": "hardhat test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harish829-stack/Chain_Abstracted_Self_Custodial_Wallet.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.15",
+    "@nomicfoundation/hardhat-ignition": "^3.1.8",
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.7",
+    "@types/chai": "^5.2.3",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.20.1",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "chai": "^6.2.2",
+    "eslint": "^9.0.0",
+    "ethers": "^6.17.0",
+    "forge-std": "github:foundry-rs/forge-std#v1.9.4",
+    "hardhat": "^3.12.0",
+    "mocha": "^11.8.0",
+    "prettier": "^3.3.0",
+    "typescript": "~6.0.3"
+  }
+}

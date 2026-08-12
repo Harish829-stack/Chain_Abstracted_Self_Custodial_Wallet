@@ -1,0 +1,62 @@
+# Node modules
+node_modules
+**/node_modules
+
+# Compilation output
+/dist
+apps/*/dist
+apps/*/.next
+apps/*/out
+packages/*/dist
+
+# pnpm deploy output
+/bundle
+
+# Hardhat Build Artifacts
+/artifacts
+
+# Hardhat compilation (v2) support directory
+/cache
+
+# Typechain output
+/types
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Hardhat coverage reports
+/coverage
+
+# Gas snapshot files
+/.gas-snapshot
+
+# Snapshot cheatcodes output
+/snapshots
+
+# Next.js
+.next
+out
+
+# Turbo
+.turbo
+
+# Build caches
+.eslintcache
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editor
+.vscode
+.idea
+DevPlan.md
+AGENTS.md
