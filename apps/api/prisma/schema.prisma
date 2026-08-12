@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum VM {
+  EVM
+  SOLANA
+}
+
+enum TransactionStatus {
+  CREATED
+  SIGNING
+  SIGNED
+  BROADCAST
+  PENDING
+  CONFIRMED
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+// ─── Tables ───────────────────────────────────────────────────────────────────
+
+/// Canonical user record. auth_provider_id is the sub/user ID from Dynamic/Privy.
+model User {
+  id             String   @id @default(cuid())
+  createdAt      DateTime @default(now()) @map("created_at")
+  authProviderId String   @unique @map("auth_provider_id")
+
+  wallets      Wallet[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+/// One wallet per user (holds addresses across VMs).
+model Wallet {
+  id     String @id @default(cuid())
+  userId String @map("user_id")
+
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses WalletAddress[]
+
+  @@map("wallets")
+}
+
+/// One row per (wallet, vm, chain) combination.
+/// e.g. wallet 1 has an EVM address on Base Sepolia AND a Solana Devnet address.
+model WalletAddress {
+  id       String @id @default(cuid())
+  walletId String @map("wallet_id")
+  vm       VM
+  chainId  String @map("chain_id") // e.g. "84532" for Base Sepolia, "solana-devnet"
+  address  String
+
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@unique([walletId, vm, chainId])
+  @@map("wallet_addresses")
+}
+
+/// Transaction lifecycle record. Tracks state from creation to confirmation.
+model Transaction {
+  id        String            @id @default(cuid())
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+  userId    String            @map("user_id")
+  chainId   String            @map("chain_id")
+  status    TransactionStatus @default(CREATED)
+  txHash    String?           @map("tx_hash")
+
+  /// JSON blob for extra metadata (token address, amount, swap route, etc.)
+  metadata Json?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("transactions")
+}
