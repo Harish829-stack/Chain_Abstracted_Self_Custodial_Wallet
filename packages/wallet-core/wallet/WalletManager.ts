@@ -27,6 +27,11 @@ export class WalletManager {
     await this.getProvider().disconnect();
   }
 
+  public async restoreSession(): Promise<boolean> {
+    return await this.getProvider().restoreSession();
+  }
+
+
   public async getAddress(vm: VM): Promise<Address> {
     return await this.getProvider().getAddress(vm);
   }
@@ -55,6 +60,3 @@ export class WalletManager {
     }
   }
 }
-
-// Export a singleton instance for global app usage
-export const walletManager = new WalletManager();

@@ -11,6 +11,9 @@ export interface IWalletProvider {
   /** Disconnect or logout the user */
   disconnect(): Promise<void>;
   
+  /** Restore an existing session (useful for returning users or recovery flows) */
+  restoreSession(): Promise<boolean>;
+  
   /** Get the address for a specific Virtual Machine (EVM, Solana) */
   getAddress(vm: VM): Promise<Address>;
   

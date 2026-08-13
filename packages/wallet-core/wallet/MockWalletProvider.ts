@@ -13,6 +13,15 @@ export class MockWalletProvider implements IWalletProvider {
     this.isConnected = false;
   }
 
+  async restoreSession(): Promise<boolean> {
+    // Mock implementation of restoring a session
+    if (this.isConnected) {
+      return true;
+    }
+    return false;
+  }
+
+
   async getAddress(vm: VM): Promise<Address> {
     if (vm === VM.EVM) {
       return "0xMockEVMAddress123456789012345678901234";
