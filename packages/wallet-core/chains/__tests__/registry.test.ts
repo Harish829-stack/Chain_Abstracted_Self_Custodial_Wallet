@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { chainRegistry } from '../registry';
-import { VM } from '../../wallet/types';
+import { chainRegistry } from "../registry";
+import { VM } from "../../wallet/types";
 
 describe('ChainRegistry', () => {
   it('contains Base Sepolia by default', () => {

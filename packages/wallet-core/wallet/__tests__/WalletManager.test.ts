@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { WalletManager } from '../WalletManager';
-import { MockWalletProvider } from '../MockWalletProvider';
-import { VM } from '../types';
-import { WalletNotConnectedError } from '../errors';
+import { WalletManager } from "../WalletManager";
+import { MockWalletProvider } from "../MockWalletProvider";
+import { VM } from "../types";
+import { WalletNotConnectedError } from "../errors";
 
 describe('WalletManager', () => {
   let walletManager: WalletManager;

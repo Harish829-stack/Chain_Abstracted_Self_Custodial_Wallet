@@ -9,6 +9,9 @@ dotenv.config({ path: resolve(__dirname, "../../../.env") });
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import { verifyJwt, type JwtPayload } from "./middleware/auth.js";
+import transactionRoutes from "./routes/transactions.js";
+import walletRoutes from "./routes/wallets.js";
+import { startPoller } from "./worker/txPoller.js";
 
 const server = Fastify({ logger: true });
 
@@ -41,13 +44,21 @@ server.get(
   }
 );
 
-const port = Number(process.env.API_PORT ?? 3001);
-const host = process.env.HOST ?? "0.0.0.0";
+server.register(transactionRoutes, { prefix: "/transactions" });
+server.register(walletRoutes, { prefix: "/wallets" });
 
-try {
-  await server.listen({ port, host });
-  console.log(`🚀 API running at http://localhost:${port}`);
-} catch (err) {
-  server.log.error(err);
-  process.exit(1);
+export { server as app };
+
+if (process.env.NODE_ENV !== "test") {
+  const port = Number(process.env.API_PORT ?? 3001);
+  const host = process.env.HOST ?? "0.0.0.0";
+
+  try {
+    startPoller();
+    await server.listen({ port, host });
+    console.log(`🚀 API running at http://localhost:${port}`);
+  } catch (err) {
+    server.log.error(err);
+    process.exit(1);
+  }
 }

@@ -1,6 +1,8 @@
 import { IWalletProvider } from "./WalletProvider";
 import { Address, TransactionRequest, VM } from "./types";
 import { WalletNotConnectedError, TransactionFailedError } from "./errors";
+import { EVMAdapter } from "../chains/evm/EVMAdapter";
+import { chainRegistry } from "../chains/registry";
 
 export class WalletManager {
   private provider: IWalletProvider | null = null;
@@ -34,6 +36,23 @@ export class WalletManager {
 
   public async getAddress(vm: VM): Promise<Address> {
     return await this.getProvider().getAddress(vm);
+  }
+
+  /**
+   * Fetch native balance for the given chain.
+   * Automatically routes to the correct adapter based on chain VM.
+   */
+  public async getBalance(chainId: string): Promise<string> {
+    const chain = chainRegistry.get(chainId);
+    if (!chain) throw new Error(`Chain not found in registry: ${chainId}`);
+
+    const address = await this.getAddress(chain.vm);
+
+    if (chain.vm === VM.EVM) {
+      const adapter = new EVMAdapter(chain);
+      return adapter.getBalance(address);
+    }
+    throw new Error(`getBalance not implemented for VM: ${chain.vm}`);
   }
 
   public async signTransaction(tx: TransactionRequest): Promise<string> {

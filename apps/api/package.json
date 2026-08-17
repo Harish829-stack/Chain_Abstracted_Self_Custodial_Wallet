@@ -12,17 +12,21 @@
     "db:migrate": "prisma migrate dev --schema=./prisma/schema.prisma",
     "db:migrate:deploy": "prisma migrate deploy --schema=./prisma/schema.prisma",
     "db:seed": "tsx prisma/seed.ts",
-    "db:studio": "prisma studio --schema=./prisma/schema.prisma"
+    "db:studio": "prisma studio --schema=./prisma/schema.prisma",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@caw/wallet-core": "workspace:*",
     "@fastify/cors": "^10.0.0",
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
     "dotenv": "^17.4.2",
     "fastify": "^5.2.0",
+    "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
     "jwks-rsa": "^4.1.0",
     "pg": "^8.23.0"
@@ -31,8 +35,11 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^22.20.1",
     "@types/pg": "^8.21.0",
+    "@types/supertest": "^7.2.1",
     "prisma": "^7.9.1",
+    "supertest": "^7.2.2",
     "tsx": "^4.19.0",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "vitest": "^2.1.9"
   }
 }
