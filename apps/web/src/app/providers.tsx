@@ -3,6 +3,7 @@
 import { DynamicContextProvider } from "@dynamic-labs/sdk-react-core";
 import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
 import { SolanaWalletConnectors } from "@dynamic-labs/solana";
+import { ZeroDevSmartWalletConnectors } from "@dynamic-labs/ethereum-aa";
 import { chainRegistry, VM } from "@caw/wallet-core";
 
 const DYNAMIC_ENV_ID = process.env.NEXT_PUBLIC_DYNAMIC_ENV_ID!;
@@ -48,7 +49,7 @@ const solanaNetworks = chainRegistry
     // Determine the Dynamic chainId/networkId based on the CAIP-2 ID
     let dynamicId = 101; // default to mainnet
     if (c.id.includes("4uhcVJyU9pJkvQyS")) dynamicId = 102; // Testnet
-    else if (c.id.includes("EtWTRABZaYq6iMfe")) dynamicId = 103; // Devnet
+    else if (c.id === "103" || c.id.includes("EtWTRABZaYq6iMfe")) dynamicId = 103; // Devnet
 
     // Pick the browser-safe RPC for this chain
     const browserRpc =
@@ -81,7 +82,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <DynamicContextProvider
       settings={{
         environmentId: DYNAMIC_ENV_ID,
-        walletConnectors: [EthereumWalletConnectors, SolanaWalletConnectors],
+        walletConnectors: [EthereumWalletConnectors, SolanaWalletConnectors, ZeroDevSmartWalletConnectors],
         overrides: {
           evmNetworks,
           ...(solanaNetworks ? { solNetworks: solanaNetworks } : {}),

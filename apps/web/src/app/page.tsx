@@ -4,6 +4,7 @@ import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
 import { SendForm } from "../components/SendForm";
 import { TransactionHistory } from "../components/TransactionHistory";
 import { UnifiedBalance } from "../components/UnifiedBalance";
+import { SecurityCard } from "../components/SecurityCard";
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       <DynamicWidget />
 
       <UnifiedBalance />
+      <SecurityCard />
 
       <div style={{ display: "flex", gap: "2rem", width: "100%", maxWidth: "1000px", marginTop: "2rem", flexWrap: "wrap", justifyContent: "center" }}>
         <SendForm />

@@ -14,7 +14,7 @@ export class ChainRegistry {
         ?? (console.warn("RPC_BASE_SEPOLIA not set, falling back to public RPC"), "https://sepolia.base.org"),
       explorerUrl: "https://sepolia.basescan.org",
       nativeCurrency: { symbol: "ETH", decimals: 18 },
-      supportsGasSponsorship: false, // Wait until Step 10 ships
+      supportsGasSponsorship: false, // Reverted from mock so real txs can be sent
       supportsSwaps: true,
     });
 
@@ -71,7 +71,7 @@ export class ChainRegistry {
     });
 
     this.register({
-      id: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
+      id: "103",
       name: "Solana Devnet",
       vm: VM.SOLANA,
       rpcUrl: process.env.RPC_SOLANA_DEVNET
@@ -79,7 +79,7 @@ export class ChainRegistry {
         ?? (console.warn("RPC_SOLANA_DEVNET not set, falling back to public RPC"), "https://api.devnet.solana.com"),
       explorerUrl: "https://explorer.solana.com/?cluster=devnet",
       nativeCurrency: { symbol: "SOL", decimals: 9 },
-      supportsGasSponsorship: false, // Check if your provider supports Solana fee payers
+      supportsGasSponsorship: false, // Reverted from mock so real txs can be sent
       supportsSwaps: false, // Wait until MVP hardening
     });
   }

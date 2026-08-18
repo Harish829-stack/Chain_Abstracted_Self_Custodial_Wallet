@@ -7,6 +7,7 @@ export * from "./wallet/DynamicWalletProvider";
 
 export * from "./chains/types";
 export * from "./chains/registry";
+export * from "./swap/SwapService";
 export * from "./chains/vendorMappings";
 export * from "./chains/evm/EVMAdapter";
 export * from "./chains/solana/SolanaAdapter";
