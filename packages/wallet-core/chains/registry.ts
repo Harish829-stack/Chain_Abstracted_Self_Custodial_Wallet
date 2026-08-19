@@ -6,15 +6,28 @@ export class ChainRegistry {
 
   constructor() {
     this.register({
-      id: "84532",
-      name: "Base Sepolia",
+      id: "421614",
+      name: "Arbitrum Sepolia",
       vm: VM.EVM,
-      rpcUrl: process.env.RPC_BASE_SEPOLIA
-        ?? process.env.NEXT_PUBLIC_RPC_BASE_SEPOLIA
-        ?? (console.warn("RPC_BASE_SEPOLIA not set, falling back to public RPC"), "https://sepolia.base.org"),
-      explorerUrl: "https://sepolia.basescan.org",
+      rpcUrl: process.env.RPC_ARBITRUM_SEPOLIA
+        ?? process.env.NEXT_PUBLIC_RPC_ARBITRUM_SEPOLIA
+        ?? "https://sepolia-rollup.arbitrum.io/rpc",
+      explorerUrl: "https://sepolia.arbiscan.io",
       nativeCurrency: { symbol: "ETH", decimals: 18 },
-      supportsGasSponsorship: false, // Reverted from mock so real txs can be sent
+      supportsGasSponsorship: false,
+      supportsSwaps: true,
+    });
+
+    this.register({
+      id: "80002",
+      name: "Polygon Amoy",
+      vm: VM.EVM,
+      rpcUrl: process.env.RPC_POLYGON_AMOY
+        ?? process.env.NEXT_PUBLIC_RPC_POLYGON_AMOY
+        ?? "https://polygon-amoy-bor-rpc.publicnode.com",
+      explorerUrl: "https://amoy.polygonscan.com",
+      nativeCurrency: { symbol: "POL", decimals: 18 },
+      supportsGasSponsorship: false,
       supportsSwaps: true,
     });
 
@@ -24,7 +37,7 @@ export class ChainRegistry {
       vm: VM.EVM,
       rpcUrl: process.env.RPC_ETH_SEPOLIA
         ?? process.env.NEXT_PUBLIC_RPC_ETH_SEPOLIA
-        ?? (console.warn("RPC_ETH_SEPOLIA not set, falling back to public RPC"), "https://ethereum-sepolia-rpc.publicnode.com"),
+        ?? "https://ethereum-sepolia-rpc.publicnode.com",
       explorerUrl: "https://sepolia.etherscan.io",
       nativeCurrency: { symbol: "ETH", decimals: 18 },
       supportsGasSponsorship: false, // Wait until Step 10 ships
@@ -32,51 +45,12 @@ export class ChainRegistry {
     });
 
     this.register({
-      id: "338",
-      name: "Cronos Testnet",
-      vm: VM.EVM,
-      rpcUrl: process.env.RPC_CRONOS_TESTNET
-        ?? process.env.NEXT_PUBLIC_RPC_CRONOS_TESTNET
-        ?? (console.warn("RPC_CRONOS_TESTNET not set, falling back to public RPC"), "https://evm-t3.cronos.org"),
-      explorerUrl: "https://explorer.cronos.org/testnet",
-      nativeCurrency: { symbol: "TCRO", decimals: 18 },
-      supportsGasSponsorship: false,
-      supportsSwaps: true,
-    });
-
-    this.register({
-      id: "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp",
-      name: "Solana Mainnet",
-      vm: VM.SOLANA,
-      rpcUrl: process.env.RPC_SOLANA_MAINNET
-        ?? process.env.NEXT_PUBLIC_RPC_SOLANA_MAINNET
-        ?? (console.warn("RPC_SOLANA_MAINNET not set, falling back to public RPC"), "https://api.mainnet-beta.solana.com"),
-      explorerUrl: "https://explorer.solana.com",
-      nativeCurrency: { symbol: "SOL", decimals: 9 },
-      supportsGasSponsorship: false,
-      supportsSwaps: true,
-    });
-
-    this.register({
-      id: "solana:4uhcVJyU9pJkvQyS88uRDiswHXSCkY3z",
-      name: "Solana Testnet",
-      vm: VM.SOLANA,
-      rpcUrl: process.env.RPC_SOLANA_TESTNET
-        ?? process.env.NEXT_PUBLIC_RPC_SOLANA_TESTNET
-        ?? (console.warn("RPC_SOLANA_TESTNET not set, falling back to public RPC"), "https://api.testnet.solana.com"),
-      explorerUrl: "https://explorer.solana.com/?cluster=testnet",
-      nativeCurrency: { symbol: "SOL", decimals: 9 },
-      supportsGasSponsorship: false,
-      supportsSwaps: false,
-    });
-
-    this.register({
-      id: "103",
+      id: "solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1",
       name: "Solana Devnet",
       vm: VM.SOLANA,
       rpcUrl: process.env.RPC_SOLANA_DEVNET
         ?? process.env.NEXT_PUBLIC_RPC_SOLANA_DEVNET
-        ?? (console.warn("RPC_SOLANA_DEVNET not set, falling back to public RPC"), "https://api.devnet.solana.com"),
+        ?? "https://api.devnet.solana.com",
       explorerUrl: "https://explorer.solana.com/?cluster=devnet",
       nativeCurrency: { symbol: "SOL", decimals: 9 },
       supportsGasSponsorship: false, // Reverted from mock so real txs can be sent

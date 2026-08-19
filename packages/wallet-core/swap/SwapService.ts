@@ -1,12 +1,14 @@
 import { EventEmitter } from "events";
+import { parseEther } from "viem";
 
 export enum SwapStatus {
   IDLE = "IDLE",
   FETCHING_QUOTE = "FETCHING_QUOTE",
   QUOTE_RECEIVED = "QUOTE_RECEIVED",
   USER_CONFIRMED = "USER_CONFIRMED",
-  EXECUTING = "EXECUTING",
-  BRIDGING = "BRIDGING",
+  SIGNING_INTENT = "SIGNING_INTENT",
+  BROADCASTING = "BROADCASTING",
+  AWAITING_SOLVER = "AWAITING_SOLVER",
   FILLED = "FILLED",
   FAILED = "FAILED",
 }
@@ -39,62 +41,105 @@ export class SwapService extends EventEmitter {
   public async getQuote(fromChain: string, toChain: string, amount: string): Promise<SwapQuote> {
     this.setStatus(SwapStatus.FETCHING_QUOTE);
     
-    // Simulate API call to LI.FI or similar provider
+    // Simulate Eco Routes Quoter API call
     await new Promise((r) => setTimeout(r, 1500));
     
-    // Mocking 1:1 testnet swap with minor slippage
+    // Mocking a highly-liquid stablecoin route quote
     this.currentQuote = {
       fromChain,
       toChain,
       fromAmount: amount,
-      toAmount: (parseFloat(amount) * 0.99).toString(),
-      estimatedDurationSeconds: 15,
+      toAmount: (parseFloat(amount) * 0.995).toString(), // 0.5% solver fee/spread
+      estimatedDurationSeconds: 5,
     };
 
     this.setStatus(SwapStatus.QUOTE_RECEIVED);
     return this.currentQuote;
   }
 
-  public async executeSwap(wallet: any): Promise<string> {
+  public async executeSwap(wallet: any, toAddress?: string): Promise<string> {
     if (!this.currentQuote) throw new Error("No quote available to execute");
     
     this.setStatus(SwapStatus.USER_CONFIRMED);
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 500));
     
-    this.setStatus(SwapStatus.EXECUTING);
+    this.setStatus(SwapStatus.SIGNING_INTENT);
     
-    // Request a REAL signature from the user to make the mock feel authentic
     let txHash: string;
+    let intentPayload: any;
+    
     try {
-      if ("signMessage" in wallet) {
-        // EVM Wallet
-        const signature = await wallet.signMessage("Confirm Cross-Chain Swap Execution");
-        txHash = "mock_swap_" + signature.substring(0, 20);
-      } else {
-        // Solana Wallet
-        const signer = await wallet.getSigner();
-        if (signer.signMessage) {
-          const encodedMessage = new TextEncoder().encode("Confirm Cross-Chain Swap Execution");
-          const signature = await signer.signMessage(encodedMessage);
-          // Convert Uint8Array to hex string for the mock hash
-          const signatureHex = Buffer.from(signature.signature || signature).toString('hex');
-          txHash = "mock_swap_sol_" + signatureHex.substring(0, 20);
+      if ("signTypedData" in wallet || "getWalletClient" in wallet) {
+        const walletClient = "getWalletClient" in wallet ? await wallet.getWalletClient() : wallet;
+        const sourceChainId = this.currentQuote.fromChain;
+        const destChainId = this.currentQuote.toChain;
+
+        const sourcePortalAddress = "0x154115F055A5Ff2584ABcB013C6832F19F0D8bc5" as `0x${string}`;
+        const destPortalAddress = "0x154115F055A5Ff2584ABcB013C6832F19F0D8bc5" as `0x${string}`;
+        const hyperProverAddress = "0x3d2D283731a900547Ef065057dBf704B6fec19C7" as `0x${string}`;
+        
+        const randomSalt = "0x" + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join("") as `0x${string}`;
+        const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600); // 1 hour
+
+        intentPayload = {
+          destination: BigInt(this.currentQuote.toChain),
+          route: {
+            salt: randomSalt,
+            deadline: deadline,
+            portal: destPortalAddress,
+            nativeAmount: parseEther(this.currentQuote.toAmount), // User wants this amount on destination
+            tokens: [],
+            calls: [
+              {
+                target: (toAddress || wallet.address) as `0x${string}`,
+                data: "0x",
+                value: parseEther(this.currentQuote.toAmount)
+              }
+            ]
+          },
+          reward: {
+            deadline: deadline,
+            creator: wallet.address as `0x${string}`,
+            prover: hyperProverAddress,
+            nativeAmount: parseEther(this.currentQuote.fromAmount), // User pays this amount on source
+            tokens: []
+          }
+        };
+
+        const PortalAbi = (await import("./PortalAbi.json")).default;
+
+        if (walletClient.writeContract) {
+          txHash = await walletClient.writeContract({
+            address: sourcePortalAddress,
+            abi: PortalAbi,
+            functionName: "publishAndFund",
+            args: [intentPayload, false], // Intent, allowPartial
+            value: intentPayload.reward.nativeAmount // Escrow the ETH reward on source chain
+          });
         } else {
-          // Fallback if no signMessage (rare)
-          txHash = "mock_swap_fallback_" + Math.random().toString(36).substring(7);
+           throw new Error("Wallet does not support writeContract");
         }
+      } else {
+        throw new Error("Solana is not supported in this on-chain intent flow yet");
       }
     } catch (err: any) {
       this.setStatus(SwapStatus.FAILED);
-      throw new Error(`User rejected signature or transaction failed: ${err.message}`);
+      throw new Error(`User rejected intent execution: ${err.message}`);
     }
 
-    this.setStatus(SwapStatus.BRIDGING);
-    await new Promise((r) => setTimeout(r, 4000));
+    this.setStatus(SwapStatus.BROADCASTING);
+    await new Promise((r) => setTimeout(r, 1000));
+    console.log("[Eco Routes] Broadcasted publishAndFund transaction:", {
+      quote: this.currentQuote,
+      txHash,
+      intentPayload
+    });
     
-    this.setStatus(SwapStatus.FILLED);
-    
-    return txHash;
+    // We attach the intentPayload to the txHash as a delimited string so the UI can send it to the backend DB metadata easily.
+    // In a real app we'd pass it back more cleanly, but this works for the mock loop.
+    return txHash + "|_INTENT_|" + JSON.stringify(intentPayload, (key, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    );
   }
 }
 

@@ -139,6 +139,42 @@ export class BalanceService {
             }
           }
         }
+
+        // Test EVM (Arbitrum Sepolia)
+        if (address.startsWith("0x")) {
+          const arbRes = await fetch("https://sepolia-rollup.arbitrum.io/rpc", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jsonrpc: "2.0", method: "eth_getBalance", params: [address, "latest"], id: 1 })
+          });
+          const arbData = await arbRes.json();
+          if (arbData.result) {
+            const balanceEth = parseInt(arbData.result, 16) / 1e18;
+            const usdValue = balanceEth * MOCK_ETH_PRICE;
+            if (usdValue > 0) {
+              totalUsd += usdValue;
+              breakdown["arbitrum-sepolia (testnet mocked)"] = (breakdown["arbitrum-sepolia (testnet mocked)"] || 0) + usdValue;
+            }
+          }
+        }
+
+        // Test EVM (Polygon Amoy)
+        if (!address.startsWith("0x")) continue;
+        const amoyRes = await fetch("https://polygon-amoy-bor-rpc.publicnode.com", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ jsonrpc: "2.0", method: "eth_getBalance", params: [address, "latest"], id: 1 })
+        });
+        const amoyData = await amoyRes.json();
+        if (amoyData.result) {
+          const balancePol = parseInt(amoyData.result, 16) / 1e18;
+          // Polygon Amoy is POL (MATIC), mock price around $0.50
+          const usdValue = balancePol * 0.50; 
+          if (usdValue > 0) {
+            totalUsd += usdValue;
+            breakdown["polygon-amoy (testnet mocked)"] = (breakdown["polygon-amoy (testnet mocked)"] || 0) + usdValue;
+          }
+        }
       } catch (err) {
         console.warn(`Failed to mock testnet balance for ${address}:`, err);
       }

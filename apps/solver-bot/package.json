@@ -1,0 +1,27 @@
+{
+  "name": "@caw/solver-bot",
+  "version": "1.0.0",
+  "description": "Eco Routes Intent Solver Bot",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "dev:fulfiller": "tsx watch src/fulfiller.ts",
+    "dev:claimer": "tsx watch src/claimer.ts",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@eco-foundation/routes-ts": "^1.2.0",
+    "@prisma/adapter-pg": "^7.9.1",
+    "@prisma/client": "^7.9.1",
+    "dotenv": "^16.6.1",
+    "pg": "^8.23.0",
+    "viem": "^2.13.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "@types/pg": "^8.21.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.4.5"
+  }
+}

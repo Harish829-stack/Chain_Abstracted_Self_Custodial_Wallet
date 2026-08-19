@@ -17,6 +17,8 @@ function getExplorerUrl(chainId: string, txHash: string) {
       return `https://sepolia.basescan.org/tx/${txHash}`;
     case "11155111":
       return `https://sepolia.etherscan.io/tx/${txHash}`;
+    case "80002":
+      return `https://amoy.polygonscan.com/tx/${txHash}`;
     case "338":
       return `https://explorer.cronos.org/testnet/tx/${txHash}`;
     case "103":

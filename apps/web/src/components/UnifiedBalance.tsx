@@ -96,9 +96,36 @@ export function UnifiedBalance() {
       {loading && !portfolio ? (
         <div style={{ fontSize: "2rem", fontWeight: "bold" }}>Loading...</div>
       ) : (
-        <div style={{ fontSize: "4rem", fontWeight: "bold" }}>
-          ${portfolio?.totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}
-        </div>
+        <>
+          <div style={{ fontSize: "4rem", fontWeight: "bold" }}>
+            ${portfolio?.totalUsd.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}
+          </div>
+          
+          {portfolio?.breakdown && Object.keys(portfolio.breakdown).length > 0 && (
+            <div style={{ 
+              display: "flex", 
+              gap: "1rem", 
+              flexWrap: "wrap", 
+              justifyContent: "center",
+              marginTop: "1rem",
+              background: "rgba(0,0,0,0.2)",
+              padding: "1rem",
+              borderRadius: "12px",
+              width: "100%"
+            }}>
+              {Object.entries(portfolio.breakdown).map(([chain, usdValue]) => (
+                <div key={chain} style={{
+                  background: "rgba(255,255,255,0.1)",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "8px",
+                  fontSize: "0.9rem"
+                }}>
+                  <span style={{ opacity: 0.8 }}>{chain}:</span> <b>${usdValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );

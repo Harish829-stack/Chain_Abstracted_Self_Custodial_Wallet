@@ -39,12 +39,12 @@ export default async function transactionRoutes(server: FastifyInstance) {
 
   server.patch<{
     Params: { id: string };
-    Body: { status: TransactionStatus; txHash?: string };
+    Body: { status: TransactionStatus; txHash?: string; metadata?: any };
   }>("/:id", async (request, reply) => {
     const payload = (request as any).jwtPayload as JwtPayload;
     const user = await getUser(payload.sub);
     const { id } = request.params;
-    const { status, txHash } = request.body;
+    const { status, txHash, metadata } = request.body;
 
     // Verify ownership
     const existing = await prisma.transaction.findUnique({
@@ -60,6 +60,7 @@ export default async function transactionRoutes(server: FastifyInstance) {
       data: {
         status,
         ...(txHash ? { txHash } : {}),
+        ...(metadata ? { metadata } : {}),
       },
     });
 

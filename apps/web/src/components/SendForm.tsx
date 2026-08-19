@@ -81,13 +81,18 @@ export function SendForm() {
         const txRecord = await res.json();
 
         // Execute Swap via State Machine
-        const txHash = await swapService.executeSwap(primaryWallet);
+        const swapResult = await swapService.executeSwap(primaryWallet, toAddress);
+        const [txHash, intentPayloadStr] = swapResult.split("|_INTENT_|");
 
         // Update backend
         await fetch(`http://localhost:3001/transactions/${txRecord.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
-          body: JSON.stringify({ status: "PENDING", txHash }),
+          body: JSON.stringify({ 
+            status: "PENDING", 
+            txHash: "eco_intent_" + txHash,
+            metadata: intentPayloadStr ? { intent: JSON.parse(intentPayloadStr) } : undefined
+          }),
         });
 
         setStatus("Swap Executed! Backend is polling for confirmation.");
@@ -209,6 +214,8 @@ export function SendForm() {
           >
             <option value="11155111">Ethereum Sepolia</option>
             <option value="84532">Base Sepolia</option>
+            <option value="80002">Polygon Amoy</option>
+            <option value="338">Cronos Testnet</option>
             <option value="103">Solana Devnet</option>
           </select>
           <select 

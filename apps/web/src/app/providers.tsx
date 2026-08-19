@@ -19,8 +19,10 @@ const evmNetworks = chainRegistry
     const browserRpc =
       c.id === "84532"
         ? process.env.NEXT_PUBLIC_RPC_BASE_SEPOLIA ?? "https://sepolia.base.org"
-        : c.id === "338"
-        ? process.env.NEXT_PUBLIC_RPC_CRONOS_TESTNET ?? "https://evm-t3.cronos.org"
+        : c.id === "421614"
+        ? process.env.NEXT_PUBLIC_RPC_ARBITRUM_SEPOLIA ?? "https://sepolia-rollup.arbitrum.io/rpc"
+        : c.id === "80002"
+        ? process.env.NEXT_PUBLIC_RPC_POLYGON_AMOY ?? "https://polygon-amoy-bor-rpc.publicnode.com"
         : process.env.NEXT_PUBLIC_RPC_ETH_SEPOLIA ?? "https://ethereum-sepolia-rpc.publicnode.com";
 
     return {
