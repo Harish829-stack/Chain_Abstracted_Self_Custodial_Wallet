@@ -23,8 +23,8 @@ export const pool = new Pool({
   ssl: { rejectUnauthorized: false } 
 });
 
-export const PORTAL_ADDRESS = "0x154115F055A5Ff2584ABcB013C6832F19F0D8bc5";
-export const HYPER_PROVER_ADDRESS = "0x3d2D283731a900547Ef065057dBf704B6fec19C7";
+export const PORTAL_ADDRESS = "0xd71ab006670A0fF4084D14104bB015064Bd0df33";
+export const HYPER_PROVER_ADDRESS = "0x7B7b64A9e5592A825Fe450513445B53e6E0554De";
 
 const solverPrivateKey = process.env.SOLVER_PRIVATE_KEY;
 

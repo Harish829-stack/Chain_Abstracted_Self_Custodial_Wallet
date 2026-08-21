@@ -11,9 +11,12 @@
     "build": "tsc"
   },
   "dependencies": {
+    "@coral-xyz/anchor": "^0.32.1",
     "@eco-foundation/routes-ts": "^1.2.0",
     "@prisma/adapter-pg": "^7.9.1",
     "@prisma/client": "^7.9.1",
+    "@solana/web3.js": "^1.98.4",
+    "bs58": "^6.0.0",
     "dotenv": "^16.6.1",
     "pg": "^8.23.0",
     "viem": "^2.13.0"

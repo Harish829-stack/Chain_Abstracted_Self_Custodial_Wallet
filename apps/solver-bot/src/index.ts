@@ -20,8 +20,8 @@ if (!connectionString) throw new Error("DATABASE_URL is not set.");
 const pool = new Pool({ connectionString, ssl: { rejectUnauthorized: false } });
 
 // Unified addresses for all EVM chains
-const PORTAL_ADDRESS = "0x154115F055A5Ff2584ABcB013C6832F19F0D8bc5";
-const HYPER_PROVER_ADDRESS = "0x3d2D283731a900547Ef065057dBf704B6fec19C7";
+const PORTAL_ADDRESS = "0xd71ab006670A0fF4084D14104bB015064Bd0df33";
+const HYPER_PROVER_ADDRESS = "0x7B7b64A9e5592A825Fe450513445B53e6E0554De";
 
 const solverPrivateKey = process.env.SOLVER_PRIVATE_KEY;
 
@@ -73,7 +73,9 @@ async function pollForIntents() {
       }
 
       try {
-        const destChainId = intentPayload.destination?.toString();
+        const intentEnvelope = intentRow.metadata?.intent;
+        const actualPayload = intentEnvelope?.payload || intentEnvelope;
+        const destChainId = actualPayload.destination?.toString();
         const targetPublicClient = publicClients[destChainId];
         const targetWalletClient = walletClients[destChainId];
         
@@ -93,7 +95,7 @@ async function pollForIntents() {
           address: PORTAL_ADDRESS as `0x${string}`,
           abi: getIntentHashAbi,
           functionName: "getIntentHash",
-          args: [intentPayload]
+          args: [actualPayload]
         }) as [string, string, string];
         
         const intentHash = hashes[0];
@@ -123,8 +125,8 @@ async function pollForIntents() {
           address: PORTAL_ADDRESS as `0x${string}`,
           abi: PortalAbi,
           functionName: "fulfillAndProve",
-          args: [intentHash, intentPayload.route, rewardHash, claimantBytes32, HYPER_PROVER_ADDRESS, sourceDomainID, encodedData],
-          value: (BigInt(intentPayload.route.nativeAmount) + extraGas)
+          args: [intentHash, actualPayload.route, rewardHash, claimantBytes32, HYPER_PROVER_ADDRESS, sourceDomainID, encodedData],
+          value: (BigInt(actualPayload.route.nativeAmount) + extraGas)
         });
         
         console.log(`⏳ Waiting for fulfillment receipt: ${txHash}`);
@@ -183,11 +185,14 @@ async function pollForClaims() {
           (item: any) => item.name === "getIntentHash" && item.inputs.length === 1
         );
 
+        const intentEnvelope = claimRow.metadata?.intent;
+        const actualPayload = intentEnvelope?.payload || intentEnvelope;
+
         const hashes = await sourcePublicClient.readContract({
           address: PORTAL_ADDRESS as `0x${string}`,
           abi: getIntentHashAbi,
           functionName: "getIntentHash",
-          args: [intentPayload]
+          args: [actualPayload]
         }) as [string, string, string];
 
         const intentHash = hashes[0];
@@ -209,7 +214,7 @@ async function pollForClaims() {
             address: PORTAL_ADDRESS as `0x${string}`,
             abi: PortalAbi,
             functionName: "withdraw",
-            args: [intentPayload.destination, hashes[1], intentPayload.reward]
+            args: [actualPayload.destination, hashes[1], actualPayload.reward]
           });
 
           console.log(`⏳ Waiting for claim receipt: ${txHash}`);
@@ -237,5 +242,5 @@ async function pollForClaims() {
 // Run Fulfillment poll every 3 seconds
 setInterval(pollForIntents, 3000);
 
-// Run Claim poll every 60 seconds (user requested 1 min)
-setInterval(pollForClaims, 60000);
+// Run Claim poll every 5 seconds
+setInterval(pollForClaims, 5000);

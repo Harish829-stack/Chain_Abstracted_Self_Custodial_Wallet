@@ -1,5 +1,6 @@
 import { EventEmitter } from "events";
-import { parseEther } from "viem";
+import { buildAndExecuteEVMIntent } from "./builders/EVMIntentBuilder";
+import { buildAndExecuteSVMIntent } from "./builders/SVMIntentBuilder";
 
 export enum SwapStatus {
   IDLE = "IDLE",
@@ -69,58 +70,17 @@ export class SwapService extends EventEmitter {
     let intentPayload: any;
     
     try {
-      if ("signTypedData" in wallet || "getWalletClient" in wallet) {
-        const walletClient = "getWalletClient" in wallet ? await wallet.getWalletClient() : wallet;
-        const sourceChainId = this.currentQuote.fromChain;
-        const destChainId = this.currentQuote.toChain;
-
-        const sourcePortalAddress = "0x154115F055A5Ff2584ABcB013C6832F19F0D8bc5" as `0x${string}`;
-        const destPortalAddress = "0x154115F055A5Ff2584ABcB013C6832F19F0D8bc5" as `0x${string}`;
-        const hyperProverAddress = "0x3d2D283731a900547Ef065057dBf704B6fec19C7" as `0x${string}`;
-        
-        const randomSalt = "0x" + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join("") as `0x${string}`;
-        const deadline = BigInt(Math.floor(Date.now() / 1000) + 3600); // 1 hour
-
-        intentPayload = {
-          destination: BigInt(this.currentQuote.toChain),
-          route: {
-            salt: randomSalt,
-            deadline: deadline,
-            portal: destPortalAddress,
-            nativeAmount: parseEther(this.currentQuote.toAmount), // User wants this amount on destination
-            tokens: [],
-            calls: [
-              {
-                target: (toAddress || wallet.address) as `0x${string}`,
-                data: "0x",
-                value: parseEther(this.currentQuote.toAmount)
-              }
-            ]
-          },
-          reward: {
-            deadline: deadline,
-            creator: wallet.address as `0x${string}`,
-            prover: hyperProverAddress,
-            nativeAmount: parseEther(this.currentQuote.fromAmount), // User pays this amount on source
-            tokens: []
-          }
-        };
-
-        const PortalAbi = (await import("./PortalAbi.json")).default;
-
-        if (walletClient.writeContract) {
-          txHash = await walletClient.writeContract({
-            address: sourcePortalAddress,
-            abi: PortalAbi,
-            functionName: "publishAndFund",
-            args: [intentPayload, false], // Intent, allowPartial
-            value: intentPayload.reward.nativeAmount // Escrow the ETH reward on source chain
-          });
-        } else {
-           throw new Error("Wallet does not support writeContract");
-        }
+      const destChainId = this.currentQuote.toChain;
+      
+      // If Solana Devnet
+      if (destChainId === "103") {
+        const result = await buildAndExecuteSVMIntent(wallet, this.currentQuote, toAddress);
+        txHash = result.txHash;
+        intentPayload = { vmType: "SVM", payload: result.intentPayload };
       } else {
-        throw new Error("Solana is not supported in this on-chain intent flow yet");
+        const result = await buildAndExecuteEVMIntent(wallet, this.currentQuote, toAddress);
+        txHash = result.txHash;
+        intentPayload = { vmType: "EVM", payload: result.intentPayload };
       }
     } catch (err: any) {
       this.setStatus(SwapStatus.FAILED);

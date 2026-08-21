@@ -55,3 +55,29 @@ After setting the variable, you can run the deployment with the Sepolia network:
 ```shell
 npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
 ```
+1. Frontend (Web)
+To start the frontend application:
+
+bash
+pnpm run dev:web
+2. API
+To start the API service:
+
+bash
+pnpm run dev:api
+3. Solver Bot
+To start the main solver bot:
+
+bash
+pnpm run dev:solver
+4. Fulfiller
+The fulfiller script is located inside the solver-bot package. You can run it from the root directory using the pnpm filter flag:
+
+bash
+pnpm --filter @caw/solver-bot run dev:fulfiller
+5. Claimer
+Similarly, the claimer script is also inside the solver-bot package and can be run with:
+
+bash
+pnpm --filter @caw/solver-bot run dev:claimer
+(Note: Since this is a monorepo, pnpm --filter <package-name> <command> allows you to run specific scripts defined in the individual sub-packages while staying in the root directory.)
